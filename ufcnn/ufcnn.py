@@ -118,19 +118,19 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
 
     x_in = tf.placeholder(tf.float32, shape=(None, 1, None, n_inputs))
     x = x_in
-    level_outputs = []
+    H_outputs = []
     dilation = 1
     for w, b in zip(H_weights, H_biases):
         x = tf.nn.relu(conv(x, w, b, filter_length, dilation))
-        level_outputs.append(x)
+        H_outputs.append(x)
         dilation *= 2
 
     x_prev = None
-    for x, w, b in zip(reversed(level_outputs),
+    for x, w, b in zip(reversed(H_outputs),
                        reversed(G_weights),
                        reversed(G_biases)):
         if x_prev is not None:
-            x = tf.concat(3, [x, x_prev])
+            x = tf.concat(3, [x_prev, x])
         x = tf.nn.relu(conv(x, w, b, filter_length, dilation))
         x_prev = x
         dilation //= 2
