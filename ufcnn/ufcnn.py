@@ -31,9 +31,10 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
                            -- H3 -- G3 --
 
     Here H and G are convolutional layers, each followed by ReLU
-    transformation. The outputs are concatenated at branch merges.
-    All filter (except C) outputs `n_filters` signals, but because of
-    concatenations filter G1 and G2 have to process 2 * `n_filters` signals.
+    transformation, C is the final convolutional layer. The outputs are
+    concatenated at branch merges. All filter (except C) outputs `n_filters`
+    signals, but because of concatenations filter G1 and G2 have to process
+    2 * `n_filters` signals.
 
     A filter on level l implicitly contains 2**(l-1) zeros inserted between
     its values. It allows the network to progressively look farther into the
@@ -57,17 +58,26 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
     n_filters : int, default 10
         Number of filters in each convolutional layers (except the last one).
     filter_length : int, default 5
-        Length of used filters.
+        Length of filters.
 
     Returns
     -------
     x : tensorflow placeholder
-        Placeholder representing input sequences.
+        Placeholder representing input sequences. Use it to feed the input
+        sequence into the network. The shape must be
+        (batch_size, 1, n_stamps, `n_inputs`). Here n_stamps is the number
+        of time stamps in the series. The second dimension has to be preserved
+        because tensorflow doesn't fully support 1-dimensional data yet.
     y_hat : tensorflow placeholder
-        Placeholder representing predicted output sequences.
+        Placeholder representing predicted output sequences. Use it to read-out
+        networks predictions. The shape is
+        (batch_size, 1, n_stamps, `n_outputs`).
     y : tensorflow placeholder
-        Placeholder representing true output sequences. Use it for constructing
-        a loss function.
+        Placeholder representing true output sequences. Use it to feed ground
+        truth values to a loss operator during training of the network. For
+        example, MSE loss can be defined as follows:
+        ``loss = tf.reduce_mean(tf.square(y - y_hat))``. The shape must be
+        the same as of `y_hat`.
     weights : list of tensorflow variables, length 2 * `n_levels` + 1
         List of convolution weights, the order is H, G, C.
     biases : list of tensorflow variables, length 2 * `n_levels` + 1
@@ -82,7 +92,7 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
     References
     ----------
     .. [1] Roni Mittelman "Time-series modeling with undecimated fully
-           convolutional neural networks", http://arxiv.org/abs/1508.00317.
+           convolutional neural networks", http://arxiv.org/abs/1508.00317
     """
     H_weights = []
     H_biases = []
