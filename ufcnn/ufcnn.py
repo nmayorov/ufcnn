@@ -1,8 +1,8 @@
 import tensorflow as tf
 
 
-def init_normal(shape):
-    initial = tf.truncated_normal(shape, stddev=0.1)
+def init_normal(shape, seed):
+    initial = tf.truncated_normal(shape, stddev=0.1, seed=seed)
     return tf.Variable(initial)
 
 
@@ -18,7 +18,7 @@ def conv(x, w, b, filter_length, dilation):
 
 
 def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
-                    filter_length=5):
+                    filter_length=5, random_seed=0):
     """Construct a Undecimated Fully Convolutional Neural Network.
 
     The architecture replicates one from the paper [1]_. It is depicted below
@@ -59,6 +59,9 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
         Number of filters in each convolutional layers (except the last one).
     filter_length : int, default 5
         Length of filters.
+    random_seed : int or None, default 0
+        Random seed to use for weights and biases initialization. None means
+        that the seed will be selected "at random".
 
     Returns
     -------
@@ -102,19 +105,25 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
     for level in range(n_levels):
         if level == 0:
             H_weights.append(
-                init_normal([1, filter_length, n_inputs, n_filters]))
+                init_normal([1, filter_length, n_inputs, n_filters],
+                            random_seed))
         else:
-            H_weights.append(init_normal([1, filter_length,
-                                          n_filters, n_filters]))
-        H_biases.append(init_normal([n_filters]))
-        if level == n_levels - 1:
-            G_weights.append(init_normal([1, filter_length,
-                                          n_filters, n_filters]))
-        else:
-            G_weights.append(init_normal([1, filter_length,
-                                          2 * n_filters, n_filters]))
+            H_weights.append(
+                init_normal([1, filter_length, n_filters, n_filters],
+                            random_seed))
 
-        G_biases.append(init_normal([n_filters]))
+        H_biases.append(init_normal([n_filters], random_seed))
+
+        if level == n_levels - 1:
+            G_weights.append(
+                init_normal([1, filter_length, n_filters, n_filters],
+                            random_seed))
+        else:
+            G_weights.append(
+                init_normal([1, filter_length, 2 * n_filters, n_filters],
+                            random_seed))
+
+        G_biases.append(init_normal([n_filters], random_seed))
 
     x_in = tf.placeholder(tf.float32, shape=(None, 1, None, n_inputs))
     x = x_in
@@ -135,8 +144,9 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
         x_prev = x
         dilation //= 2
 
-    C_weights = init_normal([1, filter_length, n_filters, n_outputs])
-    C_biases = init_normal([n_outputs])
+    C_weights = init_normal([1, filter_length, n_filters, n_outputs],
+                            random_seed)
+    C_biases = init_normal([n_outputs], random_seed)
     y_hat = conv(x, C_weights, C_biases, filter_length, 1)
     y = tf.placeholder(tf.float32, shape=(None, 1, None, n_outputs))
 
