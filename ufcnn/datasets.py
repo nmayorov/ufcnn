@@ -2,7 +2,7 @@
 import numpy as np
 
 
-def generate_tracking(n_series, n_stamps, speed=0.2,
+def generate_tracking(n_series, n_samples, speed=0.2,
                       dynamics_noise=0.005, measurement_noise=0.005,
                       random_state=0):
     """Generate data for the tracking problem from [1]_.
@@ -16,10 +16,10 @@ def generate_tracking(n_series, n_stamps, speed=0.2,
     ----------
     n_series : int
         Number of time series to generate.
-    n_stamps : int
-        Number of stamps in each time series.
+    n_samples : int
+        Number of samples in each time series.
     speed : float, default 0.1
-        Step size of the target per time stamp.
+        Step size of the target per time step.
     dynamics_noise : float, default 0.005
         Standard deviation of noise to add to the target position.
     measurement_noise : float, default 0.005
@@ -42,7 +42,7 @@ def generate_tracking(n_series, n_stamps, speed=0.2,
     rng = np.random.RandomState(random_state)
     angle = rng.uniform(-np.pi, np.pi, n_series)
     velocity = speed * np.vstack((np.sin(angle), np.cos(angle))).T
-    position = np.arange(n_stamps)[None, :, None] * velocity[:, None, :]
+    position = np.arange(n_samples)[None, :, None] * velocity[:, None, :]
     position += dynamics_noise * rng.randn(*position.shape)
 
     D = 10
@@ -51,13 +51,13 @@ def generate_tracking(n_series, n_stamps, speed=0.2,
     bearing = np.arctan2(position[:, :, 1], position[:, :, 0])
     bearing += measurement_noise * rng.randn(*bearing.shape)
 
-    X = bearing.reshape((n_series, 1, n_stamps, 1))
-    Y = position.reshape((n_series, 1, n_stamps, 2))
+    X = bearing.reshape((n_series, 1, n_samples, 1))
+    Y = position.reshape((n_series, 1, n_samples, 2))
 
     return X, Y
 
 
-def generate_ar(n_series, n_stamps, random_state=0):
+def generate_ar(n_series, n_samples, random_state=0):
     """Generate a linear auto-regressive series.
 
     This simple model is defined as::
@@ -70,8 +70,8 @@ def generate_ar(n_series, n_stamps, random_state=0):
     ----------
     n_series : int
         Number of time series to generate.
-    n_stamps : int
-        Number of stamps in each time series.
+    n_samples : int
+        Number of samples in each time series.
     random_state : int, default 0
         Seed to use in the random generator.
 
@@ -83,7 +83,7 @@ def generate_ar(n_series, n_stamps, random_state=0):
     """
     n_init = 4
     n_discard = 20
-    X = np.zeros((n_series, n_init + n_discard + n_stamps + 1))
+    X = np.zeros((n_series, n_init + n_discard + n_samples + 1))
 
     rng = np.random.RandomState(random_state)
     X[:, n_init] = rng.randn(n_series)
@@ -92,7 +92,7 @@ def generate_ar(n_series, n_stamps, random_state=0):
         X[:, i] = (0.4 * X[:, i - 1] - 0.6 * X[:, i - 4] +
                    0.1 * rng.randn(n_series))
 
-    Y = X[:, n_init + n_discard + 1:].reshape((n_series, 1, n_stamps, 1))
-    X = X[:, n_init + n_discard:-1].reshape((n_series, 1, n_stamps, 1))
+    Y = X[:, n_init + n_discard + 1:].reshape((n_series, 1, n_samples, 1))
+    X = X[:, n_init + n_discard:-1].reshape((n_series, 1, n_samples, 1))
 
     return X, Y

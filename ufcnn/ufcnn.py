@@ -68,13 +68,13 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
     x : tensorflow placeholder
         Placeholder representing input sequences. Use it to feed the input
         sequence into the network. The shape must be
-        (batch_size, 1, n_stamps, `n_inputs`). Here n_stamps is the number
-        of time stamps in the series. The second dimension has to be preserved
-        because tensorflow doesn't fully support 1-dimensional data yet.
+        (batch_size, 1, n_samples, `n_inputs`). The second (height) dimension
+        has to be preserved because tensorflow doesn't fully support
+        1-dimensional data yet.
     y_hat : tensorflow placeholder
         Placeholder representing predicted output sequences. Use it to read-out
         networks predictions. The shape is
-        (batch_size, 1, n_stamps, `n_outputs`).
+        (batch_size, 1, n_samples, `n_outputs`).
     y : tensorflow placeholder
         Placeholder representing true output sequences. Use it to feed ground
         truth values to a loss operator during training of the network. For
