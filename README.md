@@ -44,7 +44,7 @@ X_test, Y_test = generate_tracking(20, 500)
 # Create the network.
 x, y_hat, y, *_ = construct_ufcnn(n_outputs=2, n_levels=2)
 
-# Define the RMS loss and RMSProp optimizer over it.
+# Define the MSE loss and RMSProp optimizer over it.
 loss = tf.reduce_mean(tf.square(y_hat - y))
 optimizer = tf.train.RMSPropOptimizer(learning_rate=0.001)
 train_step = optimizer.minimize(loss)
@@ -75,11 +75,11 @@ print("{:^7}{:^7.2f}".format(n_epochs , mse))
 Output:
 ```
  Epoch  Loss
-   0    33.55
-   5    29.63
-  10    20.31
-  15    15.32
-  20    6.73
+   0    33.38
+   5    28.87
+  10    18.68
+  15    9.98
+  20    6.79
 ```
 We see that the optimizer progresses reasonably fast and we can expect some
 predicting power if we train the network long enough.
