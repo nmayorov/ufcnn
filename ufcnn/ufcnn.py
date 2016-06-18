@@ -52,8 +52,8 @@ def softmax(y_hat):
     return tf.reshape(sf, shape)
 
 
-def cross_entropy(y_hat, labels):
-    """Compute cross-entropy for a 3-dimensional outputs.
+def cross_entropy_loss(y_hat, labels):
+    """Compute cross-entropy loss for a 3-dimensional outputs.
 
     Parameters
     ----------
@@ -65,7 +65,7 @@ def cross_entropy(y_hat, labels):
     Returns
     -------
     sf : scalar tensor
-        Total cross entropy.
+        Cross-entropy loss.
     """
     shape = tf.shape(y_hat)
     y_hat = tf.reshape(y_hat, (-1, shape[2]))

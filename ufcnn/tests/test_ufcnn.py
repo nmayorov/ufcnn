@@ -2,7 +2,7 @@ import numpy as np
 from numpy.testing import run_module_suite, assert_, assert_allclose
 import tensorflow as tf
 
-from ufcnn import construct_ufcnn, cross_entropy, mse_loss, softmax
+from ufcnn import construct_ufcnn, cross_entropy_loss, mse_loss, softmax
 from ufcnn.datasets import generate_ar
 
 
@@ -30,7 +30,7 @@ def test_softmax():
 def test_cross_entropy():
     x = tf.placeholder(tf.float32, (3, 1, 2))
     labels = tf.placeholder(tf.int32, (3, 1))
-    ce = cross_entropy(x, labels)
+    ce = cross_entropy_loss(x, labels)
 
     x_value = np.array([
         [[1, 2]],
