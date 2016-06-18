@@ -2,7 +2,8 @@ import numpy as np
 from numpy.testing import run_module_suite, assert_, assert_allclose
 import tensorflow as tf
 
-from ufcnn import construct_ufcnn, cross_entropy_loss, mse_loss, softmax
+from ufcnn import (compute_accuracy, construct_ufcnn, cross_entropy_loss,\
+                   mse_loss, softmax)
 from ufcnn.datasets import generate_ar
 
 
@@ -58,6 +59,35 @@ def test_cross_entropy():
     assert_allclose(ce_one_hot_v, ce_true)
 
 
+def test_compute_accuracy():
+    x = tf.placeholder(tf.float32, (3, 1, 2))
+    labels_index = tf.placeholder(tf.int32, (3, 1))
+    labels_one_hot = tf.placeholder(tf.float32, (3, 1, 2))
+    accuracy_index = compute_accuracy(x, labels_index, sparse=True)
+    accuracy_one_hot = compute_accuracy(x, labels_one_hot, sparse=False)
+    x_value = np.array([
+        [[1, 2]],
+        [[1, -1]],
+        [[0, 1]]
+    ])
+
+    labels_index_v = np.array([[0], [1], [1]])
+    labels_one_hot_v = np.array([[[1, 0]], [[0, 1]], [[0, 1]]])
+    true_accuracy = 1 / 3
+
+    session = tf.Session()
+    ce_index_v = session.run(accuracy_index,
+                             feed_dict={x: x_value,
+                                        labels_index: labels_index_v})
+    ce_one_hot_v = session.run(accuracy_one_hot,
+                               feed_dict={x: x_value,
+                                          labels_one_hot: labels_one_hot_v})
+    session.close()
+
+    assert_allclose(ce_index_v, true_accuracy)
+    assert_allclose(ce_one_hot_v, true_accuracy)
+
+
 def test_reasonableness():
     # Run the net on a linear auto-regressive series and see if RMSE is
     # good after the training.
@@ -96,3 +126,4 @@ def test_reasonableness():
 
 if __name__ == '__main__':
     run_module_suite(argv=["", "--nologcapture"])
+

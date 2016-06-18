@@ -86,6 +86,41 @@ def cross_entropy_loss(y_hat, labels, sparse=False):
     return tf.reduce_sum(ce)
 
 
+def compute_accuracy(y_hat, labels, sparse=False):
+    """Compute accuracy for a 3-dimensional outputs.
+
+    The prediction is assumed to be made by argmax.
+
+    Parameters
+    ----------
+    y_hat : tensor, shape (batch_size, n_samples, n_outputs)
+        Raw predictions of a neural network. It is not required to convert it
+        to softmax, because softmax is a monotonous transform.
+    labels : tensor
+        True labels. It can have shape (batch_size, n_samples), then each
+        values should be an index within [0, n_classes). Or alternatively
+        it can have shape (batch_size, n_samples, n_outputs), then for each
+        sample a probability distribution with n_outputs values should be
+        provided (this case also handles one-hot label encoding). In the
+        latter case the correct label is also selected by argmax. Set `sparse`
+        parameter to select an appropriate setting.
+    sparse : bool, default False
+        Whether `labels` are indices or full distributions.
+
+    Returns
+    -------
+    accuracy : scalar tensor
+        Computed accuracy.
+    """
+    prediction = tf.arg_max(y_hat, 2)
+    if not sparse:
+        labels = tf.arg_max(labels, 2)
+    else:
+        labels = tf.cast(labels, prediction.dtype)
+
+    return tf.reduce_mean(tf.cast(tf.equal(prediction, labels), tf.float32))
+
+
 def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
                     filter_length=5, random_seed=0):
     """Construct a Undecimated Fully Convolutional Neural Network.
