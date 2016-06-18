@@ -52,15 +52,22 @@ def softmax(y_hat):
     return tf.reshape(sf, shape)
 
 
-def cross_entropy_loss(y_hat, labels):
+def cross_entropy_loss(y_hat, labels, sparse=False):
     """Compute cross-entropy loss for a 3-dimensional outputs.
 
     Parameters
     ----------
-    y_hat : tensor, shape (batch_size, n_samples, n_classes)
+    y_hat : tensor, shape (batch_size, n_samples, n_outputs)
         Raw predictions of a neural network.
-    labels : tensor, shape (batch_size, n_samples)
-        True labels, each value must be integer within [0, n_classes).
+    labels : tensor
+        True labels. It can have shape (batch_size, n_samples), then each
+        values should be an index within [0, n_classes). Or alternatively
+        it can have shape (batch_size, n_samples, n_outputs), then for each
+        sample a probability distribution with n_outputs values should be
+        provided (this case also handles one-hot label encoding). Set `sparse`
+        parameter to select an appropriate setting.
+    sparse : bool, default False
+        Whether `labels` are indices or full distributions.
 
     Returns
     -------
@@ -68,9 +75,14 @@ def cross_entropy_loss(y_hat, labels):
         Cross-entropy loss.
     """
     shape = tf.shape(y_hat)
-    y_hat = tf.reshape(y_hat, (-1, shape[2]))
-    labels = tf.reshape(labels, [-1])
-    ce = tf.nn.sparse_softmax_cross_entropy_with_logits(y_hat, labels)
+    y_hat = tf.reshape(y_hat, [-1, shape[2]])
+    if sparse:
+        labels = tf.reshape(labels, [-1])
+        ce = tf.nn.sparse_softmax_cross_entropy_with_logits(y_hat, labels)
+    else:
+        labels = tf.reshape(labels, [-1, shape[2]])
+        ce = tf.nn.softmax_cross_entropy_with_logits(y_hat, labels)
+
     return tf.reduce_sum(ce)
 
 
