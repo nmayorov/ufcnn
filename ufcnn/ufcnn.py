@@ -17,6 +17,63 @@ def conv(x, w, b, filter_length, dilation):
     return x + b
 
 
+def mse_loss(y_hat, y):
+    """Compute mean squared error loss.
+
+    Parameters
+    ----------
+    y_hat, y : tensor
+        Predicted and true values with identical shapes.
+
+    Returns
+    -------
+    mse_loss : scalar tensor
+        Computed MSE loss.
+    """
+    return tf.reduce_mean(tf.square(y_hat - y))
+
+
+def softmax(y_hat):
+    """Compute softmax activations for a 3-d tensor.
+
+    Parameters
+    ----------
+    y_hat : tensor, shape (batch_size, n_samples, n_classes)
+        Raw predictions of a neural network.
+
+    Returns
+    -------
+    sf : tensor, shape (batch_size, n_samples, n_classes)
+        Computed softmax values, which can be interpreted as probabilities.
+    """
+    shape = tf.shape(y_hat)
+    y_hat = tf.reshape(y_hat, (-1, shape[2]))
+    sf = tf.nn.softmax(y_hat)
+    return tf.reshape(sf, shape)
+
+
+def cross_entropy(y_hat, labels):
+    """Compute cross-entropy for a 3-dimensional outputs.
+
+    Parameters
+    ----------
+    y_hat : tensor, shape (batch_size, n_samples, n_classes)
+        Raw predictions of a neural network.
+    labels : tensor, shape (batch_size, n_samples)
+        True labels, each value must be integer within [0, n_classes).
+
+    Returns
+    -------
+    sf : scalar tensor
+        Total cross entropy.
+    """
+    shape = tf.shape(y_hat)
+    y_hat = tf.reshape(y_hat, (-1, shape[2]))
+    labels = tf.reshape(labels, [-1])
+    ce = tf.nn.sparse_softmax_cross_entropy_with_logits(y_hat, labels)
+    return tf.reduce_sum(ce)
+
+
 def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
                     filter_length=5, random_seed=0):
     """Construct a Undecimated Fully Convolutional Neural Network.

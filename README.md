@@ -34,7 +34,7 @@ Example
 The examples shows how to create and train the model.
 ```Python
 import tensorflow as tf
-from ufcnn import construct_ufcnn
+from ufcnn import construct_ufcnn, mse_loss
 from ufcnn.datasets import generate_tracking
 
 # Generate data.
@@ -45,13 +45,13 @@ X_test, Y_test = generate_tracking(20, 500)
 x, y_hat, y, *_ = construct_ufcnn(n_outputs=2, n_levels=2)
 
 # Define the MSE loss and RMSProp optimizer over it.
-loss = tf.reduce_mean(tf.square(y_hat - y))
+loss = mse_loss(y_hat, y)
 optimizer = tf.train.RMSPropOptimizer(learning_rate=0.001)
 train_step = optimizer.minimize(loss)
 
 # Run several epochs of optimization.
-sess = tf.Session()
-sess.run(tf.initialize_all_variables())
+session = tf.Session()
+session.run(tf.initialize_all_variables())
 
 print("{:^7}{:^7}".format("Epoch", "Loss"))
 
@@ -61,14 +61,14 @@ n_epochs = 20
 
 for epoch in range(n_epochs):
     if epoch % 5 == 0:
-        mse = sess.run(loss, feed_dict={x: X_test, y: Y_test})
+        mse = session.run(loss, feed_dict={x: X_test, y: Y_test})
         print("{:^7}{:^7.2f}".format(epoch, mse))
     for b in range(n_batch):
         X_batch = X_train[b * batch_size : (b + 1) * batch_size]
         Y_batch = Y_train[b * batch_size : (b + 1) * batch_size]
-        sess.run(train_step, feed_dict={x: X_batch, y: Y_batch})
+        session.run(train_step, feed_dict={x: X_batch, y: Y_batch})
 
-mse = sess.run(loss, feed_dict={x: X_test, y: Y_test})
+mse = session.run(loss, feed_dict={x: X_test, y: Y_test})
 print("{:^7}{:^7.2f}".format(n_epochs , mse))
 ```
 
