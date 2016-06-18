@@ -68,13 +68,11 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
     x : tensorflow placeholder
         Placeholder representing input sequences. Use it to feed the input
         sequence into the network. The shape must be
-        (batch_size, 1, n_samples, `n_inputs`). The second (height) dimension
-        has to be preserved because tensorflow doesn't fully support
-        1-dimensional data yet.
+        (batch_size, n_samples, `n_inputs`).
     y_hat : tensorflow placeholder
         Placeholder representing predicted output sequences. Use it to read-out
         networks predictions. The shape is
-        (batch_size, 1, n_samples, `n_outputs`).
+        (batch_size, n_samples, `n_outputs`).
     y : tensorflow placeholder
         Placeholder representing true output sequences. Use it to feed ground
         truth values to a loss operator during training of the network. For
@@ -125,8 +123,10 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
 
         G_biases.append(init_normal([n_filters], random_seed))
 
-    x_in = tf.placeholder(tf.float32, shape=(None, 1, None, n_inputs))
-    x = x_in
+    x_in = tf.placeholder(tf.float32, shape=[None, None, n_inputs])
+
+    # Add height dimensions for 2D convolutions.
+    x = tf.expand_dims(x_in, 1)
     H_outputs = []
     dilation = 1
     for w, b in zip(H_weights, H_biases):
@@ -147,8 +147,12 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
     C_weights = init_normal([1, filter_length, n_filters, n_outputs],
                             random_seed)
     C_biases = init_normal([n_outputs], random_seed)
+
     y_hat = conv(x, C_weights, C_biases, filter_length, 1)
-    y = tf.placeholder(tf.float32, shape=(None, 1, None, n_outputs))
+    # Remove height dimension.
+    y_hat = tf.squeeze(y_hat, [1])
+
+    y = tf.placeholder(tf.float32, shape=[None, None, n_outputs])
 
     weights = H_weights + G_weights + [C_weights]
     biases = H_biases + G_biases + [C_biases]

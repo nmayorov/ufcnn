@@ -51,10 +51,7 @@ def generate_tracking(n_series, n_samples, speed=0.2,
     bearing = np.arctan2(position[:, :, 1], position[:, :, 0])
     bearing += measurement_noise * rng.randn(*bearing.shape)
 
-    X = bearing.reshape((n_series, 1, n_samples, 1))
-    Y = position.reshape((n_series, 1, n_samples, 2))
-
-    return X, Y
+    return bearing[:, :, None], position
 
 
 def generate_ar(n_series, n_samples, random_state=0):
@@ -92,7 +89,7 @@ def generate_ar(n_series, n_samples, random_state=0):
         X[:, i] = (0.4 * X[:, i - 1] - 0.6 * X[:, i - 4] +
                    0.1 * rng.randn(n_series))
 
-    Y = X[:, n_init + n_discard + 1:].reshape((n_series, 1, n_samples, 1))
-    X = X[:, n_init + n_discard:-1].reshape((n_series, 1, n_samples, 1))
+    Y = X[:, n_init + n_discard + 1:, None]
+    X = X[:, n_init + n_discard: -1, None]
 
     return X, Y
