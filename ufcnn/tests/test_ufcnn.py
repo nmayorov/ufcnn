@@ -59,7 +59,8 @@ def test_reasonableness():
     X_test, Y_test = generate_ar(10, 400)
 
     for n_levels in [1, 2]:
-        x, y_hat, y, *_ = construct_ufcnn(n_levels=n_levels)
+        x, y_hat, *_ = construct_ufcnn(n_levels=n_levels)
+        y = tf.placeholder(tf.float32, shape=(None, None, 1))
 
         loss = mse_loss(y_hat, y)
         optimizer = tf.train.RMSPropOptimizer(learning_rate=0.01)

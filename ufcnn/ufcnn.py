@@ -115,30 +115,20 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
     n_filters : int, default 10
         Number of filters in each convolutional layers (except the last one).
     filter_length : int, default 5
-        Length of filters.
+        Length of the filters.
     random_seed : int or None, default 0
         Random seed to use for weights and biases initialization. None means
         that the seed will be selected "at random".
 
     Returns
     -------
-    x : tensorflow placeholder
-        Placeholder representing input sequences. Use it to feed the input
-        sequence into the network. The shape must be
-        (batch_size, n_samples, `n_inputs`).
-    y_hat : tensorflow placeholder
-        Placeholder representing predicted output sequences. Use it to read-out
-        networks predictions. The shape is
-        (batch_size, n_samples, `n_outputs`).
-    y : tensorflow placeholder
-        Placeholder representing true output sequences. Use it to feed ground
-        truth values to a loss operator during training of the network. For
-        example, MSE loss can be defined as follows:
-        ``loss = tf.reduce_mean(tf.square(y - y_hat))``. The shape must be
-        the same as of `y_hat`.
-    weights : list of tensorflow variables, length 2 * `n_levels` + 1
+    x : tensor, shape (batch_size, n_samples, n_inputs)
+        Use it to feed input sequences into the network.
+    y_hat : tensor, shape (batch_size, n_samples, n_outputs)
+        Use it to read-out networks predictions.
+    weights : list of tensors, length 2 * n_levels + 1
         List of convolution weights, the order is H, G, C.
-    biases : list of tensorflow variables, length 2 * `n_levels` + 1
+    biases : list of tensors, length 2 * n_levels + 1
         List of convolution biases, the order is H, G, C.
 
     Notes
@@ -209,9 +199,7 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
     # Remove height dimension.
     y_hat = tf.squeeze(y_hat, [1])
 
-    y = tf.placeholder(tf.float32, shape=[None, None, n_outputs])
-
     weights = H_weights + G_weights + [C_weights]
     biases = H_biases + G_biases + [C_biases]
 
-    return x_in, y_hat, y, weights, biases
+    return x_in, y_hat, weights, biases

@@ -42,7 +42,10 @@ X_train, Y_train = generate_tracking(200, 500)
 X_test, Y_test = generate_tracking(20, 500)
 
 # Create the network.
-x, y_hat, y, *_ = construct_ufcnn(n_outputs=2, n_levels=2)
+x, y_hat, *_ = construct_ufcnn(n_outputs=2, n_levels=2)
+
+# Create a placeholder for truth sequences.
+y = tf.placeholder(tf.float32, shape=(None, None, 2))
 
 # Define the MSE loss and RMSProp optimizer over it.
 loss = mse_loss(y_hat, y)
