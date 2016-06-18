@@ -113,10 +113,10 @@ def compute_accuracy(y_hat, labels, sparse=False):
         Computed accuracy.
     """
     prediction = tf.arg_max(y_hat, 2)
-    if not sparse:
-        labels = tf.arg_max(labels, 2)
-    else:
+    if sparse:
         labels = tf.cast(labels, prediction.dtype)
+    else:
+        labels = tf.arg_max(labels, 2)
 
     return tf.reduce_mean(tf.cast(tf.equal(prediction, labels), tf.float32))
 
