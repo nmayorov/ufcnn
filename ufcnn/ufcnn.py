@@ -27,7 +27,7 @@ def mse_loss(y_hat, y):
 
     Returns
     -------
-    mse_loss : scalar tensor
+    loss : scalar tensor
         Computed MSE loss.
     """
     return tf.reduce_mean(tf.square(y_hat - y))
@@ -71,8 +71,8 @@ def cross_entropy_loss(y_hat, labels, sparse=False):
 
     Returns
     -------
-    sf : scalar tensor
-        Cross-entropy loss.
+    loss : scalar tensor
+        Computed cross-entropy loss.
     """
     shape = tf.shape(y_hat)
     y_hat = tf.reshape(y_hat, [-1, shape[2]])
