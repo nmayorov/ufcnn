@@ -72,7 +72,7 @@ def cross_entropy_loss(y_hat, labels, sparse=False):
     Returns
     -------
     loss : scalar tensor
-        Computed cross-entropy loss.
+        Cross entropy-loss per sample (i.e average cross-entropy loss).
     """
     shape = tf.shape(y_hat)
     y_hat = tf.reshape(y_hat, [-1, shape[2]])
@@ -83,7 +83,7 @@ def cross_entropy_loss(y_hat, labels, sparse=False):
         labels = tf.reshape(labels, [-1, shape[2]])
         ce = tf.nn.softmax_cross_entropy_with_logits(y_hat, labels)
 
-    return tf.reduce_sum(ce)
+    return tf.reduce_mean(ce)
 
 
 def compute_accuracy(y_hat, labels, sparse=False):

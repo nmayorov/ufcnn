@@ -46,7 +46,8 @@ def test_cross_entropy():
 
     labels_index_v = np.array([[0], [1], [1]])
     labels_one_hot_v = np.array([[[1, 0]], [[0, 1]], [[0, 1]]])
-    ce_true = -np.sum(np.log(sf_true[np.arange(3), :, labels_index_v.ravel()]))
+    ce_true = -np.mean(np.log(
+        sf_true[np.arange(3), :, labels_index_v.ravel()]))
 
     session = tf.Session()
     ce_index_v = session.run(
