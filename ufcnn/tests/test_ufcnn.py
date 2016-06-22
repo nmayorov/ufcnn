@@ -32,8 +32,11 @@ def test_cross_entropy():
     x = tf.placeholder(tf.float32, (3, 1, 2))
     labels_index = tf.placeholder(tf.int32, (3, 1))
     labels_one_hot = tf.placeholder(tf.float32, (3, 1, 2))
+    weights = tf.placeholder(tf.float32, (3, 1))
     ce_index = cross_entropy_loss(x, labels_index, sparse=True)
     ce_one_hot = cross_entropy_loss(x, labels_one_hot, sparse=False)
+    ce_weights = cross_entropy_loss(x, labels_index, sparse=True,
+                                    sample_weights=weights)
 
     x_value = np.array([
         [[1, 2]],
@@ -46,6 +49,8 @@ def test_cross_entropy():
 
     labels_index_v = np.array([[0], [1], [1]])
     labels_one_hot_v = np.array([[[1, 0]], [[0, 1]], [[0, 1]]])
+    weights_v = np.array([[1], [1], [1]])
+
     ce_true = -np.mean(np.log(
         sf_true[np.arange(3), :, labels_index_v.ravel()]))
 
@@ -54,10 +59,15 @@ def test_cross_entropy():
         ce_index,  feed_dict={x: x_value, labels_index: labels_index_v})
     ce_one_hot_v = session.run(
         ce_one_hot, feed_dict={x: x_value, labels_one_hot: labels_one_hot_v})
+    ce_weights_v = session.run(
+        ce_weights, feed_dict={x: x_value, labels_index: labels_index_v,
+                               weights: weights_v})
+
     session.close()
 
     assert_allclose(ce_index_v, ce_true)
     assert_allclose(ce_one_hot_v, ce_true)
+    assert_allclose(ce_weights_v, ce_true)
 
 
 def test_compute_accuracy():

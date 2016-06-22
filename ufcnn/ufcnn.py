@@ -59,7 +59,7 @@ def softmax(y_hat):
     return tf.reshape(sf, shape)
 
 
-def cross_entropy_loss(y_hat, labels, sparse=False):
+def cross_entropy_loss(y_hat, labels, sample_weights=None, sparse=False):
     """Compute cross-entropy loss for a 3-dimensional outputs.
 
     Parameters
@@ -73,13 +73,19 @@ def cross_entropy_loss(y_hat, labels, sparse=False):
         sample a probability distribution with n_outputs values should be
         provided (this case also handles one-hot label encoding). Set `sparse`
         parameter to select an appropriate setting.
+    sample_weights : None or tensor, default None
+        Weight for each sample for summing cross entropies, shape must be
+        (batch_size, n_samples). Weights be normalized to unity sum, such
+        that the computed sum can be interpreted as a weighted average.
+        If None, all weights are assumed to be 1, i.e. a simple average is
+        computed.
     sparse : bool, default False
         Whether `labels` are indices or full distributions.
 
     Returns
     -------
     loss : scalar tensor
-        Cross entropy-loss per sample (i.e average cross-entropy loss).
+        Average cross-entropy loss.
     """
     shape = tf.shape(y_hat)
     y_hat = tf.reshape(y_hat, [-1, shape[2]])
@@ -90,7 +96,12 @@ def cross_entropy_loss(y_hat, labels, sparse=False):
         labels = tf.reshape(labels, [-1, shape[2]])
         ce = tf.nn.softmax_cross_entropy_with_logits(y_hat, labels)
 
-    return tf.reduce_mean(ce)
+    if sample_weights is None:
+        return tf.reduce_mean(ce)
+    else:
+        weights = tf.reshape(sample_weights, [-1])
+        weights = tf.div(weights, tf.reduce_sum(weights))
+        return tf.reduce_sum(tf.mul(ce, weights))
 
 
 def compute_accuracy(y_hat, labels, sparse=False):
