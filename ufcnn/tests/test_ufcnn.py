@@ -120,7 +120,7 @@ def test_reasonableness():
         mse = session.run(loss, feed_dict={x: X_test, y: Y_test})
 
         # Theoretically achievable RMSE is 0.1.
-        assert_(mse**0.5 < 0.11)
+        assert_(mse**0.5 < 0.115)
 
         session.close()
 
