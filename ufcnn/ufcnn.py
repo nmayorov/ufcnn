@@ -203,10 +203,19 @@ def construct_ufcnn(n_inputs=1, n_outputs=1, n_levels=1, n_filters=10,
     variables with std of 0.1, you can reinitialize them using the returned
     `weights` and `biases` lists.
 
+    Weights are initialized from a normal distribution with a standard
+    deviation of ``(2 / n) ** 0.5``, where ``n`` is the number of inputs
+    to a layer. Biases are initialized to zero. Such initialization is good
+    if input time series are standardized to zero mean and unit variance. It
+    is advised in [2]_.
+
     References
     ----------
     .. [1] Roni Mittelman "Time-series modeling with undecimated fully
            convolutional neural networks", http://arxiv.org/abs/1508.00317
+    .. [2] Kaiming He et al. "Delving Deep into Rectifiers: Surpassing
+           Human-Level Performance on ImageNet Classification",
+           http://arxiv.org/abs/1502.01852
     """
     H_weights = []
     H_biases = []
