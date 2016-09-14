@@ -25,9 +25,9 @@ Dependencies
 ------------
 During the development the following setup was used:
 
-- Python 3.5.1
 - numpy 1.11.0
 - tensorflow built from the latest source
+- Should work in Python 2 and 3
 
 Example
 -------

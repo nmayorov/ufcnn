@@ -1,3 +1,4 @@
+from __future__ import division
 import numpy as np
 from numpy.testing import run_module_suite, assert_, assert_allclose
 import tensorflow as tf
@@ -137,4 +138,3 @@ def test_reasonableness():
 
 if __name__ == '__main__':
     run_module_suite(argv=["", "--nologcapture"])
-
