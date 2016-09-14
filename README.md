@@ -77,12 +77,13 @@ print("{:^7}{:^7.2f}".format(n_epochs , mse))
 
 Output:
 ```
- Epoch  Loss
-   0    33.38
-   5    28.87
-  10    18.68
-  15    9.98
-  20    6.79
+ Epoch  Loss  
+   0    51.32 
+   5    23.35 
+  10    20.45 
+  15    14.08 
+  20    8.97  
+
 ```
 We see that the optimizer progresses reasonably fast and we can expect some
 predicting power if we train the network long enough.
